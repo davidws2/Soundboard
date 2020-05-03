@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.UUID;
 
 import static android.app.PendingIntent.getActivity;
 
@@ -90,19 +91,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void record() {
-        if (mediaRecorder != null) {
-            mediaRecorder.reset();
-            mediaRecorder.release();
-        }
-        path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/soundBoard_sound";
+        path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/sound.3gp";
         stopbtn.setEnabled(true);
         playbtn.setEnabled(false);
         pausebtn.setEnabled(false);
+        recordbtn.setEnabled(false);
         mediaRecorder = new MediaRecorder();
-        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.DEFAULT);
-        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.DEFAULT);
-        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.DEFAULT);
+        mediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         mediaRecorder.setOutputFile(path);
+        Toast.makeText(this, path, Toast.LENGTH_LONG).show();
         try {
             mediaRecorder.prepare();
             mediaRecorder.start();
@@ -115,22 +114,32 @@ public class MainActivity extends AppCompatActivity {
         try {
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
+            mediaPlayer.start();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        mediaPlayer.start();
+
         pausebtn.setEnabled(true);
         recordbtn.setEnabled(false);
         stopbtn.setEnabled(false);
     }
     private void pause() {
-        mediaPlayer.pause();
+        if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+            mediaPlayer.pause();
+        }
         recordbtn.setEnabled(true);
-        stopbtn.setEnabled(true);
     }
     private void stop() {
-        mediaRecorder.stop();
+        if (mediaRecorder != null) {
+            try {
+                mediaRecorder.stop();
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+            }
+        }
         playbtn.setEnabled(true);
+        recordbtn.setEnabled(true);
+        stopbtn.setEnabled(false);
     }
     private boolean permission() {
         int mic = ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO);
