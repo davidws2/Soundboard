@@ -93,8 +93,6 @@ public class MainActivity extends AppCompatActivity {
         if (mediaRecorder != null) {
             mediaRecorder.reset();
             mediaRecorder.release();
-            mediaPlayer.reset();
-            mediaPlayer.release();
         }
         path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/soundBoard_sound";
         stopbtn.setEnabled(true);
@@ -113,8 +111,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     private void playback() {
-        if (mediaPlayer == null) {
-            mediaPlayer = MediaPlayer.create(this, R.raw.sound);
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(path);
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         mediaPlayer.start();
         pausebtn.setEnabled(true);
