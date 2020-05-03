@@ -113,7 +113,6 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         mediaRecorder.setOutputFile(path);
-        Toast.makeText(this, dropdown.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
         try {
             mediaRecorder.prepare();
             mediaRecorder.start();
