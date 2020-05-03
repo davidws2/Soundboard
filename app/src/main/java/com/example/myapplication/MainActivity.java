@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -10,10 +11,14 @@ import android.content.ContextWrapper;
 import android.content.pm.PackageManager;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.Toast;
 
 import java.io.File;
@@ -30,6 +35,9 @@ public class MainActivity extends AppCompatActivity {
     MediaRecorder mediaRecorder;
     MediaPlayer mediaPlayer;
     String path;
+    Spinner dropdown;
+    ArrayAdapter<String> adapter;
+    String speed;
     final int REQUEST_PERMISSION_CODE = 1000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,11 +50,15 @@ public class MainActivity extends AppCompatActivity {
         playbtn.setEnabled(false);
         pausebtn.setEnabled(false);
         stopbtn.setEnabled(false);
-
+        dropdown = findViewById(R.id.spinner);
+        String[] items = new String[]{"x.25", "x.5", "x1","x2","x4"};
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, items);
+        dropdown.setAdapter(adapter);
         if (permission() == false) {
             requestPermission();
         }
         playbtn.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onClick(View view) {
                 playback();
@@ -101,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         mediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
         mediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         mediaRecorder.setOutputFile(path);
-        Toast.makeText(this, path, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, dropdown.getSelectedItem().toString(), Toast.LENGTH_LONG).show();
         try {
             mediaRecorder.prepare();
             mediaRecorder.start();
@@ -109,11 +121,22 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    @RequiresApi(api = Build.VERSION_CODES.M)
     private void playback() {
         mediaPlayer = new MediaPlayer();
+        speed = dropdown.getSelectedItem().toString();
         try {
             mediaPlayer.setDataSource(path);
             mediaPlayer.prepare();
+            if (speed.equals("x.25")) {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) .25));
+            } else if (speed.equals("x.5")) {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) .5));
+            } else if (speed.equals("x2")) {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) 2));
+            } else if (speed.equals("x4")) {
+                mediaPlayer.setPlaybackParams(mediaPlayer.getPlaybackParams().setSpeed((float) 4));
+            }
             mediaPlayer.start();
         } catch (IOException e) {
             e.printStackTrace();
